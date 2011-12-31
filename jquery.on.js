@@ -12,62 +12,47 @@
 
  */
 (function ($) {
-
-	if(!$.fn.on) {
-		$.fn.on = function () {
+	
+	function attach(map) {
+		return function () {
 			var args = Array.prototype.slice.call(arguments, 0);
 			for(var i = 0, len = args.length; i < len; i++) {
 				args[i] = (typeof args[i]).charAt(0);
 			}
-			var opts = onMap[args.join('')];
+			var opts = map[args.join('')];
 			if(opts) {
 				for(i = 0; i < len; i++) {
 					args[opts.i[i]] = arguments[i];
 				}
-				this[opts.fn].apply(this, args);
+				this[opts.f].apply(this, args);
 			}
 			return this;
 		};
 	}
 
+	var bind = 'bind',
+		delegate = 'delegate',
+		unbind = 'un'+bind,
+		undelegate = 'un'+delegate;
 
-	if(!$.fn.off) {
-		$.fn.off = function () {
-			var args = Array.prototype.slice.call(arguments, 0);
-			for(var i = 0, len = args.length; i < len; i++) {
-				args[i] = (typeof args[i]).charAt(0);
-			}
-			var opts = offMap[args.join('')];
-			if(opts) {
-				for(i = 0; i < len; i++) {
-					args[opts.i[i]] = arguments[i];
-				}
-				this[opts.fn].apply(this, args);
-			}
-			return this;
-		};
-	}
+	$.fn.on = attach({
+		'sf':	{f:bind, i:[0,1]},
+		'sof':	{f:bind, i:[0,1,2]},
+		'o':	{f:bind, i:[0]},
+		'oo':	{f:bind, i:[0,1]},
+		'ssf':	{f:delegate, i:[1,0,2]},
+		'ssof':	{f:delegate, i:[1,0,2,3]},
+		'os':	{f:delegate, i:[1,0]},
+		'oso':	0
+	});
 
-
-	var onMap = {
-		'sf':	{fn:'bind', i:[0,1]},
-		'sof':	{fn:'bind', i:[0,1,2]},
-		'o':	{fn:'bind', i:[0]},
-		'oo':	{fn:'bind', i:[0,1]},
-		'ssf':	{fn:'delegate', i:[1,0,2]},
-		'ssof':	{fn:'delegate', i:[1,0,2,3]},
-		'os':	{fn:'delegate', i:[1,0]},
-		'oso':	false
-	};
-
-
-	var offMap = {
-		's':	{fn:'unbind', i:[0]},
-		'sf':	{fn:'unbind', i:[0,1]},
-		'o':	{fn:'unbind', i:[0]},
-		'ss':	{fn:'undelegate', i:[1,0]},
-		'ssf':	{fn:'undelegate', i:[1,0,2]},
-		'os':	{fn:'undelegate', i:[1,0]}
-	};
+	$.fn.off = attach({
+		's':	{f:unbind, i:[0]},
+		'sf':	{f:unbind, i:[0,1]},
+		'o':	{f:unbind, i:[0]},
+		'ss':	{f:undelegate, i:[1,0]},
+		'ssf':	{f:undelegate, i:[1,0,2]},
+		'os':	{f:undelegate, i:[1,0]}
+	});
 
 })(jQuery);
